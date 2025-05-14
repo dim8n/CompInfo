@@ -43,7 +43,7 @@ def get_all_ip_addresses():
     for interface, addresses in psutil.net_if_addrs().items():
         for addr in addresses:
             if addr.family == socket.AF_INET:
-                ip_addresses.append(f"{interface}: {addr.address}")
+                ip_addresses.append(f"{interface}: \t{addr.address}")
     return ip_addresses
 
 def get_specific_disk_info(drives_to_check):
@@ -83,10 +83,10 @@ def get_network_drives():
         return ["Функция доступна только в Windows"]
 
 def update_info():
-    computer_name_var.set(f"Имя компьютера: {get_computer_name()}")
-    system_info_var.set(f"ОС: {get_system_info()}")
-    username_var.set(f"Пользователь: {get_username()}")
-    domain_var.set(f"Домен: {get_domain()}")
+    computer_name_var.set(f"Имя компьютера: \t{get_computer_name()}")
+    system_info_var.set(f"ОС: \t\t\t{get_system_info()}")
+    username_var.set(f"Пользователь: \t\t{get_username()}")
+    domain_var.set(f"Домен: \t\t\t{get_domain()}")
     ip_addresses = "\n".join(get_all_ip_addresses())
     ip_address_var.set(ip_addresses if ip_addresses else "Нет IP-адресов")
 
