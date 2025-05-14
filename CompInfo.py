@@ -6,17 +6,18 @@ import shutil
 import platform
 import subprocess
 import getpass
+import psutil  # Добавляем импорт psutil
 
 def get_computer_name():
     return platform.node()
 
-def get_ip_address():
-    try:
-        hostname = socket.gethostname()
-        ip_address = socket.gethostbyname(hostname)
-        return ip_address
-    except socket.gaierror:
-        return "Невозможно получить IP-адрес"
+def get_all_ip_addresses():
+    ip_addresses = []
+    for interface, addresses in psutil.net_if_addrs().items():
+        for addr in addresses:
+            if addr.family == socket.AF_INET:
+                ip_addresses.append(f"{interface}: {addr.address}")
+    return ip_addresses
 
 def get_username():
     return getpass.getuser()
@@ -59,8 +60,7 @@ def get_network_drives():
     if platform.system() == "Windows":
         try:
             output_bytes = subprocess.check_output("net use", shell=True)
-            output_text = output_bytes.decode('cp866', errors='ignore') # Попробуйте кодировку cp866
-            print("Вывод 'net use':\n", output_text)  # Отладочный вывод
+            output_text = output_bytes.decode('cp866', errors='ignore')
             lines = output_text.strip().split('\n')
             network_drives = []
             for line in lines[2:]:
@@ -77,7 +77,8 @@ def get_network_drives():
 
 def update_info():
     computer_name_var.set(f"Имя компьютера: {get_computer_name()}")
-    ip_address_var.set(f"IP-адрес: {get_ip_address()}")
+    ip_addresses = "\n".join(get_all_ip_addresses())
+    ip_address_var.set(f"IP-адреса:\n{ip_addresses if ip_addresses else 'Нет IP-адресов'}")
     username_var.set(f"Пользователь: {get_username()}")
     domain_var.set(f"Домен: {get_domain()}")
 
