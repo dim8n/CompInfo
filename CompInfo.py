@@ -128,19 +128,19 @@ system_info_frame = ttk.LabelFrame(root, text="Информация о сист�
 system_info_frame.pack(pady=5, padx=10, fill="x")
 
 computer_name_var = tk.StringVar()
-computer_name_label = ttk.Label(system_info_frame, textvariable=computer_name_var, anchor="w")
+computer_name_label = ttk.Label(system_info_frame, textvariable=computer_name_var, anchor="w", font=("Lucida Console", 9))
 computer_name_label.pack(pady=2, padx=5, fill="x")
 
 system_info_var = tk.StringVar()
-system_info_label = ttk.Label(system_info_frame, textvariable=system_info_var, anchor="w")
+system_info_label = ttk.Label(system_info_frame, textvariable=system_info_var, anchor="w", font=("Lucida Console", 9))
 system_info_label.pack(pady=2, padx=5, fill="x")
 
 username_var = tk.StringVar()
-username_label = ttk.Label(system_info_frame, textvariable=username_var, anchor="w")
+username_label = ttk.Label(system_info_frame, textvariable=username_var, anchor="w", font=("Lucida Console", 9))
 username_label.pack(pady=2, padx=5, fill="x")
 
 domain_var = tk.StringVar()
-domain_label = ttk.Label(system_info_frame, textvariable=domain_var, anchor="w")
+domain_label = ttk.Label(system_info_frame, textvariable=domain_var, anchor="w", font=("Lucida Console", 9))
 domain_label.pack(pady=2, padx=5, fill="x")
 
 # Фрейм для информации о сети
@@ -148,7 +148,7 @@ network_info_frame = ttk.LabelFrame(root, text="Сеть", style="TLabelframe")
 network_info_frame.pack(pady=5, padx=10, fill="x")
 
 ip_address_var = tk.StringVar()
-ip_address_label = ttk.Label(network_info_frame, textvariable=ip_address_var, anchor="w")
+ip_address_label = ttk.Label(network_info_frame, textvariable=ip_address_var, anchor="w", font=("Lucida Console", 9))
 ip_address_label.pack(pady=2, padx=5, fill="x")
 
 # Фрейм для информации о дисках C: и D:
@@ -178,7 +178,7 @@ network_drives_frame = ttk.LabelFrame(root, text="Сетевые диски", st
 network_drives_frame.pack(pady=5, padx=10, fill="x")
 
 network_drives_var = tk.StringVar(value="Нет подключенных сетевых дисков")
-network_drives_label = ttk.Label(network_drives_frame, textvariable=network_drives_var, justify='left')
+network_drives_label = ttk.Label(network_drives_frame, textvariable=network_drives_var, justify='left', font=("Lucida Console", 9))
 network_drives_label.pack(pady=2, padx=5, fill="x")
 
 update_info() # Первоначальное обновление информации
