@@ -12,13 +12,11 @@ from tkinter import font
 def get_computer_name():
     return platform.node()
 
-def get_all_ip_addresses():
-    ip_addresses = []
-    for interface, addresses in psutil.net_if_addrs().items():
-        for addr in addresses:
-            if addr.family == socket.AF_INET:
-                ip_addresses.append(f"{interface}: {addr.address}")
-    return ip_addresses
+def get_system_info():
+    system_name = platform.system()
+    release = platform.release()
+    version = platform.version()
+    return f"{system_name} {release} ({version})"
 
 def get_username():
     return getpass.getuser()
@@ -39,6 +37,14 @@ def get_domain():
             return "Непредвиденная ошибка"
     else:
         return "Недоступно в данной ОС"
+
+def get_all_ip_addresses():
+    ip_addresses = []
+    for interface, addresses in psutil.net_if_addrs().items():
+        for addr in addresses:
+            if addr.family == socket.AF_INET:
+                ip_addresses.append(f"{interface}: {addr.address}")
+    return ip_addresses
 
 def get_specific_disk_info(drives_to_check):
     disk_info = {}
@@ -78,10 +84,11 @@ def get_network_drives():
 
 def update_info():
     computer_name_var.set(f"Имя компьютера: {get_computer_name()}")
-    ip_addresses = "\n".join(get_all_ip_addresses())
-    ip_address_var.set(ip_addresses if ip_addresses else "Нет IP-адресов")
+    system_info_var.set(f"ОС: {get_system_info()}")
     username_var.set(f"Пользователь: {get_username()}")
     domain_var.set(f"Домен: {get_domain()}")
+    ip_addresses = "\n".join(get_all_ip_addresses())
+    ip_address_var.set(ip_addresses if ip_addresses else "Нет IP-адресов")
 
     disk_info = get_specific_disk_info(["C:", "D:"])
 
@@ -116,13 +123,17 @@ bold_small_font = font.Font(weight="bold", size=10)  # Создаем жирны
 style = ttk.Style()
 style.configure("TLabelframe.Label", font=bold_small_font)
 
-# Фрейм для информации о системе (имя компьютера, пользователь, домен)
+# Фрейм для информации о системе (имя компьютера, версия ОС, пользователь, домен)
 system_info_frame = ttk.LabelFrame(root, text="Информация о системе", style="TLabelframe")
 system_info_frame.pack(pady=5, padx=10, fill="x")
 
 computer_name_var = tk.StringVar()
 computer_name_label = ttk.Label(system_info_frame, textvariable=computer_name_var, anchor="w")
 computer_name_label.pack(pady=2, padx=5, fill="x")
+
+system_info_var = tk.StringVar()
+system_info_label = ttk.Label(system_info_frame, textvariable=system_info_var, anchor="w")
+system_info_label.pack(pady=2, padx=5, fill="x")
 
 username_var = tk.StringVar()
 username_label = ttk.Label(system_info_frame, textvariable=username_var, anchor="w")
