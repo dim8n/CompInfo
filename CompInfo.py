@@ -83,10 +83,10 @@ def get_network_drives():
         return ["Функция доступна только в Windows"]
 
 def update_info():
-    computer_name_var.set(f"Имя компьютера: \t{get_computer_name()}")
-    system_info_var.set(f"ОС: \t\t\t{get_system_info()}")
-    username_var.set(f"Пользователь: \t\t{get_username()}")
-    domain_var.set(f"Домен: \t\t\t{get_domain()}")
+    computer_name_var.set(f"Сетевое имя: \t{get_computer_name()}")
+    system_info_var.set(f"ОС: \t\t{get_system_info()}")
+    username_var.set(f"Пользователь: \t{get_username()}")
+    domain_var.set(f"Домен: \t\t{get_domain()}")
     ip_addresses = "\n".join(get_all_ip_addresses())
     ip_address_var.set(ip_addresses if ip_addresses else "Нет IP-адресов")
 
