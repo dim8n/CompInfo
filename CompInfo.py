@@ -7,6 +7,7 @@ import platform
 import subprocess
 import getpass
 import psutil  # Добавляем импорт psutil
+from tkinter import font
 
 def get_computer_name():
     return platform.node()
@@ -78,7 +79,7 @@ def get_network_drives():
 def update_info():
     computer_name_var.set(f"Имя компьютера: {get_computer_name()}")
     ip_addresses = "\n".join(get_all_ip_addresses())
-    ip_address_var.set(f"IP-адреса:\n{ip_addresses if ip_addresses else 'Нет IP-адресов'}")
+    ip_address_var.set(ip_addresses if ip_addresses else "Нет IP-адресов")
     username_var.set(f"Пользователь: {get_username()}")
     domain_var.set(f"Домен: {get_domain()}")
 
@@ -111,17 +112,17 @@ def update_info():
 root = tk.Tk()
 root.title("Информация о системе")
 
-# Фрейм для информации о системе (имя компьютера, IP, пользователь, домен)
-system_info_frame = ttk.LabelFrame(root, text="Информация о системе")
+bold_small_font = font.Font(weight="bold", size=10)  # Создаем жирный шрифт размером 10
+style = ttk.Style()
+style.configure("TLabelframe.Label", font=bold_small_font)
+
+# Фрейм для информации о системе (имя компьютера, пользователь, домен)
+system_info_frame = ttk.LabelFrame(root, text="Информация о системе", style="TLabelframe")
 system_info_frame.pack(pady=5, padx=10, fill="x")
 
 computer_name_var = tk.StringVar()
 computer_name_label = ttk.Label(system_info_frame, textvariable=computer_name_var, anchor="w")
 computer_name_label.pack(pady=2, padx=5, fill="x")
-
-ip_address_var = tk.StringVar()
-ip_address_label = ttk.Label(system_info_frame, textvariable=ip_address_var, anchor="w")
-ip_address_label.pack(pady=2, padx=5, fill="x")
 
 username_var = tk.StringVar()
 username_label = ttk.Label(system_info_frame, textvariable=username_var, anchor="w")
@@ -131,8 +132,16 @@ domain_var = tk.StringVar()
 domain_label = ttk.Label(system_info_frame, textvariable=domain_var, anchor="w")
 domain_label.pack(pady=2, padx=5, fill="x")
 
+# Фрейм для информации о сети
+network_info_frame = ttk.LabelFrame(root, text="Сеть", style="TLabelframe")
+network_info_frame.pack(pady=5, padx=10, fill="x")
+
+ip_address_var = tk.StringVar()
+ip_address_label = ttk.Label(network_info_frame, textvariable=ip_address_var, anchor="w")
+ip_address_label.pack(pady=2, padx=5, fill="x")
+
 # Фрейм для информации о дисках C: и D:
-disks_frame = ttk.LabelFrame(root, text="Локальные диски (C:, D:)")
+disks_frame = ttk.LabelFrame(root, text="Локальные диски (C:, D:)", style="TLabelframe")
 disks_frame.pack(pady=5, padx=10, fill="x")
 
 # Информация и прогрессбар для диска C:
@@ -154,7 +163,7 @@ d_disk_progress = ttk.Progressbar(d_disk_frame, orient="horizontal", length=200,
 d_disk_progress.pack(side="right", padx=5)
 
 # Фрейм для информации о сетевых дисках
-network_drives_frame = ttk.LabelFrame(root, text="Сетевые диски")
+network_drives_frame = ttk.LabelFrame(root, text="Сетевые диски", style="TLabelframe")
 network_drives_frame.pack(pady=5, padx=10, fill="x")
 
 network_drives_var = tk.StringVar(value="Нет подключенных сетевых дисков")
