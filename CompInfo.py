@@ -20,7 +20,7 @@ if platform.system() == "Windows":
     except AttributeError:
         # Fallback на случай, если какие-то из этих атрибутов отсутствуют (очень старые Python, странные сборки)
         _startupinfo_windows = None
-#  --- Конец Windows-специфичных настроек ---
+#   --- Конец Windows-специфичных настроек ---
 
 def get_computer_name():
     """Возвращает имя компьютера."""
