@@ -22,7 +22,6 @@ if platform.system() == "Windows":
         _startupinfo_windows = None
 # --- Конец Windows-специфичных настроек ---
 
-
 def get_computer_name():
     """Возвращает имя компьютера."""
     return platform.node()
