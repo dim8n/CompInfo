@@ -41,7 +41,7 @@ jobs:
         # Имя файла будет включать текущий номер версии из тега GitHub (например, CompInfo_v1.0.0.exe)
         run: |
           mkdir release_assets
-          Copy-Item -Path "dist/CompInfo.exe" -Destination "release_assets/CompInfo_v${{ github.ref_name }}.exe"
+          Copy-Item -Path "dist/CompInfo.exe" -Destination "release_assets/CompInfo_${{ github.ref_name }}.exe"
         shell: powershell
 
       - name: Get current tag name # Шаг 6: Извлекаем чистое имя тега (без "refs/tags/")
