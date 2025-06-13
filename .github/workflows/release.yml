@@ -1,74 +1,43 @@
-name: Release Application for Windows
+name: Release Windows Executable
 
 on:
   push:
     tags:
-      - 'v*.*.*' # Запускать этот workflow при пуше тега, начинающегося с 'v' (например, v1.0.0)
+      - 'v*.*.*'
 
 jobs:
-  build_and_release_windows:
-    name: Build & Release for Windows
-    runs-on: windows-latest # Запускаем на последней версии Windows
+  build_windows:
+    runs-on: windows-latest
+    permissions: # <-- Добавьте эту секцию
+      contents: write # <-- Разрешить запись в содержимое репозитория (включает релизы)
 
     steps:
-      - name: Checkout code # Шаг 1: Клонируем репозиторий
+      - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Setup Python # Шаг 2: Настраиваем окружение Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10' # Вы можете изменить версию Python, если нужно
-          # Замечание: GitHub Actions уже имеет PyInstaller на Windows-раннерах,
-          # но явная установка гарантирует нужную версию.
+          python-version: '3.x' # Важно: укажите точную версию Python, например '3.10' или '3.11'
 
-      - name: Install dependencies # Шаг 3: Устанавливаем необходимые Python-пакеты
-        run: pip install pyinstaller psutil # Устанавливаем PyInstaller и psutil
-        shell: powershell # Используем PowerShell для выполнения команд
-
-      - name: Build application (PyInstaller) # Шаг 4: Собираем приложение в EXE
-        run: pyinstaller --onefile CompInfo.py # Используем имя вашего скрипта CompInfo.py
-        shell: powershell
-
-      - name: Create release artifact # Шаг 5: Подготавливаем файл для релиза
-        # Копируем созданный .exe файл в папку для артефактов релиза
+      - name: Install dependencies
         run: |
-          mkdir release_assets
-          # Имя результирующего файла будет "CompInfo_v1.0.0.exe"
-          Copy-Item -Path "dist/CompInfo.exe" -Destination "release_assets/CompInfo_v${{ github.ref_name }}.exe"
-        shell: powershell
+          python -m pip install --upgrade pip
+          pip install pyinstaller python-docx
 
-      - name: Get current tag name # Шаг 6: Получаем имя текущего тега
-        id: get_tag
-        run: |
-          $TAG_NAME = "${{ github.ref }}".Replace("refs/tags/", "")
-          echo "TAG_NAME=$TAG_NAME" >> $env:GITHUB_OUTPUT
-        shell: powershell
+      - name: Build with PyInstaller
+        run: pyinstaller --onefile --name "find_duplet" --icon=compinfo.ico find_duplet.py
+        shell: cmd
 
-      ---
-      
-      - name: Create GitHub Release # Шаг 7: Создаем релиз на GitHub
+      - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          tag_name: ${{ steps.get_tag.outputs.TAG_NAME }}
-          name: Release ${{ steps.get_tag.outputs.TAG_NAME }} (Windows)
-          body: |
-            # Release Notes for ${{ steps.get_tag.outputs.TAG_NAME }} (Windows)
-
-            ## Новые возможности:
-            - Добавьте описание новых функций здесь.
-
-            ## Исправления ошибок:
-            - Добавьте описание исправленных ошибок здесь.
-
-            ## Известные проблемы:
-            - Добавьте описание известных проблем здесь.
-
-            Полный список изменений можно посмотреть в [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md).
-          draft: false # Установите 'true', если хотите создать черновик релиза
-          prerelease: false # Установите 'true', если это предварительный релиз (альфа, бета)
-          files: release_assets/* # Прикрепляем все файлы из папки release_assets
+          files: dist/find_duplet.exe
+          name: Release ${{ github.ref_name }} (Windows)
+          tag_name: ${{ github.ref_name }}
+          draft: false
+          prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Токен, автоматически предоставляемый GitHub Actions
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
