@@ -57,19 +57,6 @@ jobs:
         with:
           tag_name: ${{ steps.get_tag.outputs.TAG_NAME }} # Используем имя тега, полученное на предыдущем шаге
           name: Release ${{ steps.get_tag.outputs.TAG_NAME }} (Windows) # Отображаемое имя релиза
-          body: | # Описание релиза, поддерживающее Markdown
-            # Release Notes for ${{ steps.get_tag.outputs.TAG_NAME }} (Windows)
-
-            ## Новые возможности:
-            - Добавьте описание новых функций здесь.
-
-            ## Исправления ошибок:
-            - Добавьте описание исправленных ошибок здесь.
-
-            ## Известные проблемы:
-            - Добавьте описание известных проблем здесь.
-
-            Полный список изменений можно посмотреть в [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md).
           draft: false # Установите 'true', если хотите, чтобы релиз был создан как черновик (требует ручной публикации)
           prerelease: false # Установите 'true', если это предварительный релиз (альфа, бета-версия)
           files: release_assets/* # Указываем, какие файлы из папки 'release_assets' прикреплять к релизу
