@@ -1,58 +1,63 @@
-name: Release Application for Windows
+name: Release Application for Windows # Имя вашего workflow, отображаемое на GitHub
 
 on:
   push:
     tags:
-      - 'v*.*.*' # Запускать этот workflow при пуше тега, начинающегося с 'v' (например, v1.0.0)
+      - 'v*.*.*' # Запускать этот workflow при пуше тега, начинающегося с 'v' (например, v1.0.0, v2.1.5)
 
 jobs:
   build_and_release_windows:
-    name: Build & Release for Windows
-    runs-on: windows-latest # Запускаем на последней версии Windows
+    name: Build & Release for Windows # Имя конкретной задачи (job)
+    runs-on: windows-latest # Выполнять эту задачу на последней версии Windows
+    
+    # --- Важная секция permissions для доступа к API GitHub ---
+    permissions:
+      contents: write # Предоставляет токену GITHUB_TOKEN права на запись содержимого репозитория,
+                      # что включает создание релизов и загрузку к ним файлов.
+    # --- Конец секции permissions ---
 
     steps:
-      - name: Checkout code # Шаг 1: Клонируем репозиторий
+      - name: Checkout code # Шаг 1: Клонируем исходный код из репозитория
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # Необходимо для корректного доступа ко всем тегам и истории Git
 
       - name: Setup Python # Шаг 2: Настраиваем окружение Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10' # Вы можете изменить версию Python, если нужно
-          # Замечание: GitHub Actions уже имеет PyInstaller на Windows-раннерах,
-          # но явная установка гарантирует нужную версию.
+          python-version: '3.10' # Вы можете изменить версию Python на нужную (например, '3.9', '3.11')
 
       - name: Install dependencies # Шаг 3: Устанавливаем необходимые Python-пакеты
-        run: pip install pyinstaller psutil # Устанавливаем PyInstaller и psutil
-        shell: powershell # Используем PowerShell для выполнения команд
+        # Устанавливаем PyInstaller для компиляции в EXE и psutil, который используется в CompInfo.py
+        run: pip install pyinstaller psutil
+        shell: powershell # Используем PowerShell для выполнения команд в Windows
 
-      - name: Build application (PyInstaller) # Шаг 4: Собираем приложение в EXE
-        run: pyinstaller --onefile CompInfo.py # Используем имя вашего скрипта CompInfo.py
+      - name: Build application (PyInstaller) # Шаг 4: Собираем приложение CompInfo.py в исполняемый файл (.exe)
+        run: pyinstaller --onefile CompInfo.py # Компилируем ваш скрипт CompInfo.py в один EXE-файл
         shell: powershell
 
-      - name: Create release artifact # Шаг 5: Подготавливаем файл для релиза
-        # Копируем созданный .exe файл в папку для артефактов релиза
+      - name: Create release artifact # Шаг 5: Подготавливаем исполняемый файл для релиза
+        # Копируем созданный PyInstaller'ом .exe файл в специальную папку 'release_assets'
+        # Имя файла будет включать текущий номер версии из тега GitHub (например, CompInfo_v1.0.0.exe)
         run: |
           mkdir release_assets
-          # Имя результирующего файла будет "CompInfo_v1.0.0.exe"
           Copy-Item -Path "dist/CompInfo.exe" -Destination "release_assets/CompInfo_v${{ github.ref_name }}.exe"
         shell: powershell
 
-      - name: Get current tag name # Шаг 6: Получаем имя текущего тега
-        id: get_tag
+      - name: Get current tag name # Шаг 6: Извлекаем чистое имя тега (без "refs/tags/")
+        id: get_tag # Присваиваем ID этому шагу, чтобы ссылаться на его выходные данные
         run: |
-          $TAG_NAME = "${{ github.ref }}".Replace("refs/tags/", "")
-          echo "TAG_NAME=$TAG_NAME" >> $env:GITHUB_OUTPUT
+          $TAG_NAME = "${{ github.ref }}".Replace("refs/tags/", "") # Удаляем префикс "refs/tags/"
+          echo "TAG_NAME=$TAG_NAME" >> $env:GITHUB_OUTPUT # Сохраняем имя тега как выходную переменную
         shell: powershell
 
-      - name: Create GitHub Release # Шаг 7: Создаем релиз на GitHub
-        id: create_release
-        uses: softprops/action-gh-release@v2
+      - name: Create GitHub Release # Шаг 7: Создаем новый релиз на GitHub
+        id: create_release # Присваиваем ID этому шагу
+        uses: softprops/action-gh-release@v2 # Используем готовый экшен для создания релизов
         with:
-          tag_name: ${{ steps.get_tag.outputs.TAG_NAME }}
-          name: Release ${{ steps.get_tag.outputs.TAG_NAME }} (Windows)
-          body: |
+          tag_name: ${{ steps.get_tag.outputs.TAG_NAME }} # Используем имя тега, полученное на предыдущем шаге
+          name: Release ${{ steps.get_tag.outputs.TAG_NAME }} (Windows) # Отображаемое имя релиза
+          body: | # Описание релиза, поддерживающее Markdown
             # Release Notes for ${{ steps.get_tag.outputs.TAG_NAME }} (Windows)
 
             ## Новые возможности:
@@ -65,8 +70,8 @@ jobs:
             - Добавьте описание известных проблем здесь.
 
             Полный список изменений можно посмотреть в [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md).
-          draft: false # Установите 'true', если хотите создать черновик релиза
-          prerelease: false # Установите 'true', если это предварительный релиз (альфа, бета)
-          files: release_assets/* # Прикрепляем все файлы из папки release_assets
+          draft: false # Установите 'true', если хотите, чтобы релиз был создан как черновик (требует ручной публикации)
+          prerelease: false # Установите 'true', если это предварительный релиз (альфа, бета-версия)
+          files: release_assets/* # Указываем, какие файлы из папки 'release_assets' прикреплять к релизу
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Токен, автоматически предоставляемый GitHub Actions
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Автоматически предоставляемый токен GitHub Actions с нужными правами
