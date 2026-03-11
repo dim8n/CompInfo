@@ -10,7 +10,7 @@ import psutil
 from tkinter import font
 
 # --- Windows-специфичные настройки для скрытия окна консоли ---
-# Эти атрибуты существуют в subprocess только на Windows
+# Эти атрибуты существуют в subprocess только на Windows :3
 _startupinfo_windows = None
 if platform.system() == "Windows":
     try:
